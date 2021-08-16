@@ -10,6 +10,7 @@ import (
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
 	"github.com/google/uuid"
+	tracing "github.com/kaihendry/go-trace-log-me"
 
 	"github.com/apex/gateway/v2"
 )
@@ -45,7 +46,7 @@ func main() {
 		}
 
 		// Forward the header traceID so we can see it in the logs
-		req.Header.Set(HeaderKey, traceID)
+		req.Header.Set(tracing.HeaderKey, traceID)
 		ctx.Info("forwarding trace ID")
 
 		res, err := http.DefaultClient.Do(req)
@@ -112,7 +113,7 @@ func main() {
 			Name:     os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
 			TraceID:  traceID,
 			Response: string(response),
-			Env:      EnvMap(),
+			Env:      tracing.EnvMap(),
 			Header:   r.Header,
 		})
 

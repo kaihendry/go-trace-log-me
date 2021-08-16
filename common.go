@@ -6,7 +6,7 @@ import (
 )
 
 // HeaderKey is the key we will forward to chain the request through services together
-const HeaderKey string = "x-amzn-trace-id"
+const HeaderKey string = "x-foobar"
 
 func EnvMap() map[string]string {
 	envmap := make(map[string]string)

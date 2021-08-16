@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
@@ -39,7 +38,7 @@ func main() {
 			}{
 				Name:    os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
 				TraceID: traceID,
-				Env:     envMap(),
+				Env:     tracing.EnvMap(),
 				Header:  r.Header,
 			})
 			ctx.Info("responded with traceID")
@@ -54,16 +53,4 @@ func main() {
 		err = gateway.ListenAndServe("", nil)
 	}
 	log.Fatalf("failed to start server: %v", err)
-}
-
-func envMap() map[string]string {
-	envmap := make(map[string]string)
-	for _, e := range os.Environ() {
-		ep := strings.SplitN(e, "=", 2)
-		if strings.Contains(ep[0], "SEC") || strings.Contains(ep[0], "TOKEN") {
-			continue
-		}
-		envmap[ep[0]] = ep[1]
-	}
-	return envmap
 }
