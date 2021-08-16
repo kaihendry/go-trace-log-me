@@ -7,6 +7,7 @@ import (
 
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
+	tracing "github.com/kaihendry/x-amzn-trace-id"
 	"github.com/tj/go/http/response"
 
 	"github.com/apex/gateway/v2"
@@ -19,7 +20,7 @@ func main() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// the trace ID header probably has a different name depending on the system
 		// i'm assuming it's AWS and I'm not not sure if I should be checking for others
-		traceID := r.Header.Get("x-amzn-trace-id")
+		traceID := r.Header.Get(tracing.HeaderKey)
 
 		// log using ctx so we have the traceID to search with
 		// TODO: shouldn't http req path et al be logged here too?

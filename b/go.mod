@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-lambda-go v1.26.0 // indirect
 	github.com/aws/aws-sdk-go v1.40.20 // indirect
 	github.com/aws/aws-xray-sdk-go v1.6.0
+	github.com/kaihendry/x-amzn-trace-id/a v0.0.0-20210814105436-1a04ba0818bb // indirect
 	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/prozz/aws-embedded-metrics-golang v1.0.0 // indirect
 	github.com/tj/go v1.8.7

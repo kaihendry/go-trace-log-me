@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
@@ -18,13 +17,11 @@ import (
 // Version is set during the build Makefile
 var Version string
 
-const TraceIDHeaderKey string = "x-amzn-trace-id"
-
 func main() {
 	log.SetHandler(jsonhandler.Default)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		traceID := r.Header.Get(TraceIDHeaderKey)
+		traceID := r.Header.Get(tracing.HeaderKey)
 
 		if traceID == "" {
 			// generate UUID
@@ -48,7 +45,7 @@ func main() {
 		}
 
 		// Forward the header traceID so we can see it in the logs
-		req.Header.Set(TraceIDHeaderKey, traceID)
+		req.Header.Set(HeaderKey, traceID)
 		ctx.Info("forwarding trace ID")
 
 		res, err := http.DefaultClient.Do(req)
@@ -115,7 +112,7 @@ func main() {
 			Name:     os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
 			TraceID:  traceID,
 			Response: string(response),
-			Env:      envMap(),
+			Env:      EnvMap(),
 			Header:   r.Header,
 		})
 
@@ -129,16 +126,4 @@ func main() {
 		err = gateway.ListenAndServe("", nil)
 	}
 	log.Fatalf("failed to start server: %v", err)
-}
-
-func envMap() map[string]string {
-	envmap := make(map[string]string)
-	for _, e := range os.Environ() {
-		ep := strings.SplitN(e, "=", 2)
-		if strings.Contains(ep[0], "SEC") || strings.Contains(ep[0], "TOKEN") {
-			continue
-		}
-		envmap[ep[0]] = ep[1]
-	}
-	return envmap
 }
