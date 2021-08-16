@@ -17,3 +17,10 @@ destroy:
 clean:
 	rm -rf main gin-bin
 
+.PHONY: build-BMainFunction
+build-BMainFunction:
+	cd b && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o ${ARTIFACTS_DIR}/bmain
+
+.PHONY: build-AMainFunction
+build-AMainFunction:
+	cd a && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-X main.Version=${VERSION}" -o ${ARTIFACTS_DIR}/amain

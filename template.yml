@@ -11,7 +11,7 @@ Resources:
       Environment:
         Variables:
           ENDPOINT: !Sub "https://${BGateway}.execute-api.${AWS::Region}.amazonaws.com/"
-      CodeUri: ./a
+      CodeUri: .
       Runtime: go1.x
       Description: Tracing test A
       Events:
@@ -21,7 +21,7 @@ Resources:
             ApiId: !Ref AGateway
             Path: /{proxy+}
             Method: ANY
-      Handler: main
+      Handler: amain
     Metadata:
       BuildMethod: makefile
 
@@ -31,7 +31,7 @@ Resources:
   BMainFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./b
+      CodeUri: .
       Runtime: go1.x
       Description: Tracing test B
       Events:
@@ -41,7 +41,7 @@ Resources:
             ApiId: !Ref BGateway
             Path: /{proxy+}
             Method: ANY
-      Handler: main
+      Handler: bmain
     Metadata:
       BuildMethod: makefile
 

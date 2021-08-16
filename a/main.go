@@ -72,7 +72,7 @@ func main() {
 <title>{{ .Name }}</title>
 </head>
 <body>
-<h1>Trace ID</h1>
+<h1>Trace Header Key {{ .TraceHeaderKey }}</h1>
 <pre>{{ .TraceID }}</pre>
 <h1>Response</h1>
 <pre>
@@ -104,17 +104,19 @@ func main() {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
 		err = t.Execute(w, struct {
-			Name     string
-			TraceID  string
-			Response string
-			Env      map[string]string
-			Header   http.Header
+			Name           string
+			TraceHeaderKey string
+			TraceID        string
+			Response       string
+			Env            map[string]string
+			Header         http.Header
 		}{
-			Name:     os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
-			TraceID:  traceID,
-			Response: string(response),
-			Env:      tracing.EnvMap(),
-			Header:   r.Header,
+			Name:           os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
+			TraceHeaderKey: tracing.HeaderKey,
+			TraceID:        traceID,
+			Response:       string(response),
+			Env:            tracing.EnvMap(),
+			Header:         r.Header,
 		})
 
 	})
