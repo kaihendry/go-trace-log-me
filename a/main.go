@@ -18,16 +18,19 @@ import (
 // Version is set during the build Makefile
 var Version string
 
+const TraceIDHeaderKey string = "x-amzn-trace-id"
+
 func main() {
 	log.SetHandler(jsonhandler.Default)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
-		traceID, ok := os.LookupEnv("x-amzn-trace-id")
-		if !ok {
+		traceID := r.Header.Get(TraceIDHeaderKey)
+
+		if traceID == "" {
 			// generate UUID
 			traceID = uuid.New().String()
+			log.Info("new trace ID")
 		}
-
 		ctx := log.WithFields(log.Fields{"traceID": traceID, "service": "a"})
 
 		endpoint, ok := os.LookupEnv("ENDPOINT")
@@ -45,16 +48,19 @@ func main() {
 		}
 
 		// Forward the header traceID so we can see it in the logs
-		req.Header.Set("x-amzn-trace-id", traceID)
+		req.Header.Set(TraceIDHeaderKey, traceID)
+		ctx.Info("forwarding trace ID")
 
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
+			ctx.WithError(err).Error("failed to make request")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		response, err := ioutil.ReadAll(res.Body)
 		if err != nil {
+			ctx.WithError(err).Error("failed to read body")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -74,12 +80,21 @@ func main() {
 <pre>
 {{ .Response }}
 </pre>
+
+<h1>Environment</h1>
 <dl>
 {{range $key, $value := .Env -}}
 <dt>{{ $key }}</dt><dd>{{ $value }}</dd>
 {{- end}}
 </dl>
-<p><a href="https://github.com/kaihendry/x-amzn-trace-id">Source code</a></p>
+
+<h3>Request Header</h3>
+<dl>
+{{range $key, $value := .Header -}}
+<dt>{{ $key }}</dt><dd>{{ $value }}</dd>
+{{end}}
+</dl>
+
 </body>
 </html>`)
 
@@ -95,11 +110,13 @@ func main() {
 			TraceID  string
 			Response string
 			Env      map[string]string
+			Header   http.Header
 		}{
 			Name:     os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
 			TraceID:  traceID,
 			Response: string(response),
 			Env:      envMap(),
+			Header:   r.Header,
 		})
 
 	})

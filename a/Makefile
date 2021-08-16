@@ -1,4 +1,7 @@
-VERSION := 0.1
+VERSION := 0.2
+
+run:
+	PORT=3000 ENDPOINT=http://localhost:3500 go run main.go
 
 .PHONY: build-AMainFunction
 build-AMainFunction:

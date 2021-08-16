@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
+	"github.com/tj/go/http/response"
 
 	"github.com/apex/gateway/v2"
 )
@@ -26,9 +27,20 @@ func main() {
 
 		if traceID == "" {
 			ctx.Error("missing trace ID")
-			fmt.Fprintf(w, "b has no trace ID passed to via the x-amzn-trace-id header")
+			http.Error(w, "missing trace ID", http.StatusBadRequest)
+			return
 		} else {
-			fmt.Fprintf(w, "b "+traceID)
+			response.OK(w, struct {
+				Name    string
+				TraceID string
+				Env     map[string]string
+				Header  http.Header
+			}{
+				Name:    os.Getenv("AWS_LAMBDA_FUNCTION_NAME") + Version,
+				TraceID: traceID,
+				Env:     envMap(),
+				Header:  r.Header,
+			})
 			ctx.Info("responded with traceID")
 		}
 	})
@@ -41,4 +53,16 @@ func main() {
 		err = gateway.ListenAndServe("", nil)
 	}
 	log.Fatalf("failed to start server: %v", err)
+}
+
+func envMap() map[string]string {
+	envmap := make(map[string]string)
+	for _, e := range os.Environ() {
+		ep := strings.SplitN(e, "=", 2)
+		if strings.Contains(ep[0], "SEC") || strings.Contains(ep[0], "TOKEN") {
+			continue
+		}
+		envmap[ep[0]] = ep[1]
+	}
+	return envmap
 }

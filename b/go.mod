@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-xray-sdk-go v1.6.0
 	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/prozz/aws-embedded-metrics-golang v1.0.0 // indirect
+	github.com/tj/go v1.8.7
 	github.com/valyala/fasthttp v1.28.0 // indirect
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
