@@ -7,7 +7,7 @@ import (
 
 	"github.com/apex/log"
 	jsonhandler "github.com/apex/log/handlers/json"
-	tracing "github.com/kaihendry/x-amzn-trace-id"
+	tracing "github.com/kaihendry/go-trace-log-me"
 	"github.com/tj/go/http/response"
 
 	"github.com/apex/gateway/v2"
