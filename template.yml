@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+  AGateway:
+    Type: AWS::Serverless::HttpApi
+
+  AMainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          ENDPOINT: !Sub "https://${BGateway}.execute-api.${AWS::Region}.amazonaws.com/"
+      CodeUri: ./a
+      Runtime: go1.x
+      Description: Tracing test A
+      Events:
+        CatchAll:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AGateway
+            Path: /{proxy+}
+            Method: ANY
+      Handler: main
+    Metadata:
+      BuildMethod: makefile
+
+  BGateway:
+    Type: AWS::Serverless::HttpApi
+
+  BMainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./b
+      Runtime: go1.x
+      Description: Tracing test B
+      Events:
+        CatchAll:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BGateway
+            Path: /{proxy+}
+            Method: ANY
+      Handler: main
+    Metadata:
+      BuildMethod: makefile
+
+Outputs:
+  AGatewayEndPoint:
+    Value: !Sub "https://${AGateway}.execute-api.${AWS::Region}.amazonaws.com/"
+  AMainFunctionLogs:
+    Value: !Sub "sam logs --name ${AMainFunction} --region ${AWS::Region} --tail"
+  BGatewayEndPoint:
+    Value: !Sub "https://${BGateway}.execute-api.${AWS::Region}.amazonaws.com/"
+  BMainFunctionLogs:
+    Value: !Sub "sam logs --name ${BMainFunction} --region ${AWS::Region} --tail"
