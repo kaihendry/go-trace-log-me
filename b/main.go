@@ -23,7 +23,7 @@ func main() {
 
 		// log using ctx so we have the traceID to search with
 		// TODO: shouldn't http req path et al be logged here too?
-		ctx := log.WithFields(log.Fields{"traceID": traceID, "service": "b"})
+		ctx := log.WithFields(log.Fields{"CORRELATION-ID": traceID, "service": "b"})
 
 		if traceID == "" {
 			ctx.Error("missing trace ID")
